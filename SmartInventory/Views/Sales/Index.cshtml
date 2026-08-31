@@ -1,0 +1,51 @@
+@model IEnumerable<SmartInventory.Models.Sale>
+
+@{
+    ViewData["Title"] = "Sales";
+}
+
+<h1>Sales</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Record New Sale
+    </a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Product ID</th>
+            <th>Quantity</th>
+            <th>Sale Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ProductId</td>
+                <td>@item.Quantity</td>
+                <td>@item.SaleDate.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <a asp-action="Edit"
+                       asp-route-id="@item.Id">
+                        Edit
+                    </a>
+                    |
+                    <a asp-action="Details"
+                       asp-route-id="@item.Id">
+                        Details
+                    </a>
+                    |
+                    <a asp-action="Delete"
+                       asp-route-id="@item.Id">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

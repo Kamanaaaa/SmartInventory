@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-4">
+
+    <h1 class="mb-4">Smart Inventory Dashboard</h1>
+
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="card text-center mb-3">
+                <div class="card-body">
+                    <h5>Total Products</h5>
+                    <h2>@ViewBag.TotalProducts</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center mb-3">
+                <div class="card-body">
+                    <h5>Low Stock</h5>
+                    <h2>@ViewBag.LowStockProducts</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center mb-3">
+                <div class="card-body">
+                    <h5>Out of Stock</h5>
+                    <h2>@ViewBag.OutOfStockProducts</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center mb-3">
+                <div class="card-body">
+                    <h5>Restock Soon</h5>
+                    <h2>@ViewBag.RestockSoon</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-4">
+
+        <h3>Inventory Management</h3>
+
+        <a asp-controller="Products"
+           asp-action="Index"
+           class="btn btn-primary me-2">
+            Manage Products
+        </a>
+
+        <a asp-controller="Products"
+           asp-action="Create"
+           class="btn btn-success me-2">
+            Add Product
+        </a>
+
+        <a asp-controller="Prediction"
+           asp-action="Index"
+           class="btn btn-warning">
+            View Predictions
+        </a>
+
+    </div>
+
+</div>
