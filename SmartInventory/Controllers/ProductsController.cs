@@ -14,7 +14,7 @@ public class ProductsController : Controller
     }
 
     // GET: PRODUCTS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
         return View(await _context.Products.ToListAsync());
     }
@@ -54,6 +54,7 @@ public class ProductsController : Controller
         {
             _context.Add(product);
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Product added successfully.";
             return RedirectToAction(nameof(Index));
         }
         return View(product);
@@ -105,6 +106,7 @@ public class ProductsController : Controller
                     throw;
                 }
             }
+            TempData["SuccessMessage"] = "Product updated successfully.";
             return RedirectToAction(nameof(Index));
         }
         return View(product);
@@ -127,23 +129,38 @@ public class ProductsController : Controller
 
         return View(product);
     }
-
     // POST: PRODUCTS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
         var product = await _context.Products.FindAsync(id);
-        if (product != null)
+
+        if (product == null)
         {
-            _context.Products.Remove(product);
+            return NotFound();
         }
 
+        var hasSales = await _context.Sales
+            .AnyAsync(s => s.ProductId == id);
+
+        if (hasSales)
+        {
+            TempData["ErrorMessage"] =
+                "This product cannot be deleted because it has sales records.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        _context.Products.Remove(product);
+
         await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Product deleted successfully.";
+
         return RedirectToAction(nameof(Index));
     }
-
-    private bool ProductExists(int? id)
+    private bool ProductExists(int id)
     {
         return _context.Products.Any(e => e.Id == id);
     }

@@ -4,69 +4,201 @@
 
 <div class="container mt-4">
 
-    <h1 class="mb-4">Smart Inventory Dashboard</h1>
+    <!-- Dashboard Heading -->
+    <div class="mb-4">
+        <h1>Smart Inventory Dashboard</h1>
+        <p class="text-muted">
+            Monitor your inventory, stock levels, and restocking requirements.
+        </p>
+    </div>
 
+    <!-- Statistics Cards -->
     <div class="row">
 
+        <!-- Total Products -->
         <div class="col-md-3">
-            <div class="card text-center mb-3">
+            <div class="card shadow-sm text-center mb-4">
                 <div class="card-body">
-                    <h5>Total Products</h5>
-                    <h2>@ViewBag.TotalProducts</h2>
+                    <h6 class="text-muted">Total Products</h6>
+                    <h2 class="fw-bold">
+                        @ViewBag.TotalProducts
+                    </h2>
+                    <p class="mb-0">Products in inventory</p>
                 </div>
             </div>
         </div>
 
+        <!-- Low Stock -->
         <div class="col-md-3">
-            <div class="card text-center mb-3">
+            <div class="card shadow-sm text-center mb-4">
                 <div class="card-body">
-                    <h5>Low Stock</h5>
-                    <h2>@ViewBag.LowStockProducts</h2>
+                    <h6 class="text-muted">Low Stock</h6>
+                    <h2 class="fw-bold">
+                        @ViewBag.LowStockProducts
+                    </h2>
+                    <p class="mb-0">Below reorder level</p>
                 </div>
             </div>
         </div>
 
+        <!-- Out of Stock -->
         <div class="col-md-3">
-            <div class="card text-center mb-3">
+            <div class="card shadow-sm text-center mb-4">
                 <div class="card-body">
-                    <h5>Out of Stock</h5>
-                    <h2>@ViewBag.OutOfStockProducts</h2>
+                    <h6 class="text-muted">Out of Stock</h6>
+                    <h2 class="fw-bold">
+                        @ViewBag.OutOfStockProducts
+                    </h2>
+                    <p class="mb-0">Need immediate action</p>
                 </div>
             </div>
         </div>
 
+        <!-- Restock Soon -->
         <div class="col-md-3">
-            <div class="card text-center mb-3">
+            <div class="card shadow-sm text-center mb-4">
                 <div class="card-body">
-                    <h5>Restock Soon</h5>
-                    <h2>@ViewBag.RestockSoon</h2>
+                    <h6 class="text-muted">Restock Soon</h6>
+                    <h2 class="fw-bold">
+                        @ViewBag.RestockSoon
+                    </h2>
+                    <p class="mb-0">Within 7 days</p>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <div class="mt-4">
 
-        <h3>Inventory Management</h3>
+    <!-- Quick Actions -->
+    <div class="card shadow-sm mb-4">
 
-        <a asp-controller="Products"
-           asp-action="Index"
-           class="btn btn-primary me-2">
-            Manage Products
-        </a>
+        <div class="card-body">
 
-        <a asp-controller="Products"
-           asp-action="Create"
-           class="btn btn-success me-2">
-            Add Product
-        </a>
+            <h4 class="mb-3">Inventory Management</h4>
 
-        <a asp-controller="Prediction"
-           asp-action="Index"
-           class="btn btn-warning">
-            View Predictions
-        </a>
+            <a asp-controller="Products"
+               asp-action="Index"
+               class="btn btn-primary me-2 mb-2">
+                Manage Products
+            </a>
+
+            <a asp-controller="Products"
+               asp-action="Create"
+               class="btn btn-success me-2 mb-2">
+                Add Product
+            </a>
+
+            <a asp-controller="Sales"
+               asp-action="Index"
+               class="btn btn-info me-2 mb-2">
+                View Sales
+            </a>
+
+            <a asp-controller="Prediction"
+               asp-action="Index"
+               class="btn btn-warning mb-2">
+                View Predictions
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Restock Alerts -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <h3 class="mb-3">Restock Alerts</h3>
+
+            @if (ViewBag.RestockProducts.Count > 0)
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover">
+
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Current Stock</th>
+                                <th>Daily Sales</th>
+                                <th>Estimated Days Remaining</th>
+                                <th>Recommendation</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var product in ViewBag.RestockProducts)
+                            {
+                                double daysRemaining = 0;
+
+                                if (product.DailySales > 0)
+                                {
+                                    daysRemaining =
+                                        product.StockQuantity / product.DailySales;
+                                }
+
+                                <tr>
+
+                                    <td>
+                                        <strong>@product.Name</strong>
+                                    </td>
+
+                                    <td>
+                                        @product.StockQuantity
+                                    </td>
+
+                                    <td>
+                                        @product.DailySales.ToString("0.00")
+                                    </td>
+
+                                    <td>
+                                        @daysRemaining.ToString("0.0") days
+                                    </td>
+
+                                    <td>
+
+                                        @if (product.StockQuantity == 0)
+                                        {
+                                            <span class="badge bg-dark">
+                                                Restock Immediately
+                                            </span>
+                                        }
+                                        else if (daysRemaining <= 3)
+                                        {
+                                            <span class="badge bg-danger">
+                                                Urgent Restock
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Consider Restocking Soon
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-success">
+                    No products currently require restocking.
+                </div>
+            }
+
+        </div>
 
     </div>
 

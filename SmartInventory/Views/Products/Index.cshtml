@@ -4,6 +4,20 @@
     ViewData["Title"] = "Products";
 }
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
 <h1>Products</h1>
 
 <p>
@@ -19,6 +33,7 @@
             <th>Reorder Level</th>
             <th>Price</th>
             <th>Daily Sales</th>
+            <th>Stock Status</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -31,8 +46,22 @@
                 <td>@item.Category</td>
                 <td>@item.StockQuantity</td>
                 <td>@item.ReorderLevel</td>
-                <td>@item.Price</td>
+                <td>Rs. @item.Price.ToString("0.00")</td>
                 <td>@item.DailySales</td>
+                <td>
+                    @if (item.StockQuantity == 0)
+                    {
+                        <span class="badge bg-dark">OUT OF STOCK</span>
+                    }
+                    else if (item.StockQuantity <= item.ReorderLevel)
+                    {
+                        <span class="badge bg-warning text-dark">LOW STOCK</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">NORMAL</span>
+                    }
+                </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |

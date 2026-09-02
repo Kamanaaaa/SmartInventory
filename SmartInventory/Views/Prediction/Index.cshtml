@@ -4,69 +4,216 @@
     ViewData["Title"] = "Stock Prediction";
 }
 
-<h1>Smart Stock Prediction</h1>
+<div class="container mt-4">
 
-<p>
-    This page predicts approximately how many days each product's
-    current stock will last.
-</p>
+    <!-- Page Heading -->
+    <div class="mb-4">
+        <h1>Smart Stock Prediction</h1>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th>Current Stock</th>
-            <th>Daily Sales</th>
-            <th>Reorder Level</th>
-            <th>Estimated Days Remaining</th>
-            <th>Status</th>
-            <th>Recommendation</th>
-        </tr>
-    </thead>
+        <p class="text-muted">
+            Average daily sales are calculated from recorded sales history
+            and used to estimate how long the current inventory will last.
+        </p>
+    </div>
 
-    <tbody>
-        @foreach (var product in Model)
-        {
-            double daysRemaining = 0;
 
-            if (product.DailySales > 0)
-            {
-                daysRemaining = product.StockQuantity / product.DailySales;
-            }
+    <!-- Prediction Information -->
+    <div class="alert alert-info">
+        <strong>How prediction works:</strong>
+        The system uses current stock and average daily sales to estimate
+        the number of days remaining before stock runs out.
+    </div>
 
-            string status;
-            string recommendation;
 
-            if (product.StockQuantity == 0)
-            {
-                status = "OUT OF STOCK";
-                recommendation = "Restock immediately";
-            }
-            else if (daysRemaining <= 3)
-            {
-                status = "URGENT";
-                recommendation = "Restock immediately";
-            }
-            else if (product.StockQuantity <= product.ReorderLevel || daysRemaining <= 7)
-            {
-                status = "LOW STOCK";
-                recommendation = "Consider restocking soon";
-            }
-            else
-            {
-                status = "NORMAL";
-                recommendation = "Stock level is sufficient";
-            }
+    <!-- Prediction Table -->
+    <div class="card shadow-sm">
 
-            <tr>
-                <td>@product.Name</td>
-                <td>@product.StockQuantity</td>
-                <td>@product.DailySales</td>
-                <td>@product.ReorderLevel</td>
-                <td>@daysRemaining.ToString("0.0") days</td>
-                <td><strong>@status</strong></td>
-                <td>@recommendation</td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <div class="card-body">
+
+            <h4 class="mb-3">
+                Inventory Prediction
+            </h4>
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Current Stock</th>
+                            <th>Average Daily Sales</th>
+                            <th>Reorder Level</th>
+                            <th>Days Remaining</th>
+                            <th>Expected Stockout</th>
+                            <th>Status</th>
+                            <th>Recommendation</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var product in Model)
+                        {
+                            double daysRemaining = 0;
+                            string status = "";
+                            string recommendation = "";
+                            string stockoutDate = "N/A";
+
+                            if (product.StockQuantity == 0)
+                            {
+                                status = "OUT OF STOCK";
+                                recommendation = "Restock immediately";
+                                stockoutDate = "Already out of stock";
+                            }
+                            else if (product.DailySales <= 0)
+                            {
+                                status = "NO SALES DATA";
+                                recommendation = "Record more sales";
+                                stockoutDate = "N/A";
+                            }
+                            else
+                            {
+                                daysRemaining =
+                                    product.StockQuantity /
+                                    product.DailySales;
+
+                                stockoutDate =
+                                    DateTime.Today
+                                    .AddDays(daysRemaining)
+                                    .ToString("yyyy-MM-dd");
+
+                                if (daysRemaining <= 3)
+                                {
+                                    status = "URGENT";
+                                    recommendation =
+                                        "Restock immediately";
+                                }
+                                else if (daysRemaining <= 7 ||
+                                         product.StockQuantity <=
+                                         product.ReorderLevel)
+                                {
+                                    status = "LOW STOCK";
+                                    recommendation =
+                                        "Consider restocking soon";
+                                }
+                                else
+                                {
+                                    status = "NORMAL";
+                                    recommendation =
+                                        "Stock level is sufficient";
+                                }
+                            }
+
+
+                            <tr>
+
+                                <!-- Product -->
+                                <td>
+                                    <strong>
+                                        @product.Name
+                                    </strong>
+                                </td>
+
+
+                                <!-- Current Stock -->
+                                <td>
+                                    @product.StockQuantity
+                                </td>
+
+
+                                <!-- Daily Sales -->
+                                <td>
+                                    @product.DailySales.ToString("0.00")
+                                </td>
+
+
+                                <!-- Reorder Level -->
+                                <td>
+                                    @product.ReorderLevel
+                                </td>
+
+
+                                <!-- Days Remaining -->
+                                <td>
+                                    @daysRemaining.ToString("0.0") days
+                                </td>
+
+
+                                <!-- Stockout Date -->
+                                <td>
+                                    @stockoutDate
+                                </td>
+
+
+                                <!-- Status -->
+                                <td>
+
+                                    @if (status == "URGENT")
+                                    {
+                                        <span class="badge bg-danger">
+                                            URGENT
+                                        </span>
+                                    }
+                                    else if (status == "LOW STOCK")
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            LOW STOCK
+                                        </span>
+                                    }
+                                    else if (status == "OUT OF STOCK")
+                                    {
+                                        <span class="badge bg-dark">
+                                            OUT OF STOCK
+                                        </span>
+                                    }
+                                    else if (status == "NO SALES DATA")
+                                    {
+                                        <span class="badge bg-secondary">
+                                            NO SALES DATA
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            NORMAL
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- Recommendation -->
+                                <td>
+                                    @if (status == "URGENT")
+                                    {
+                                        <strong>
+                                            @recommendation
+                                        </strong>
+                                    }
+                                    else if (status == "OUT OF STOCK")
+                                    {
+                                        <strong>
+                                            @recommendation
+                                        </strong>
+                                    }
+                                    else
+                                    {
+                                        @recommendation
+                                    }
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
