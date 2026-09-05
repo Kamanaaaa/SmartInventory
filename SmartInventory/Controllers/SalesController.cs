@@ -91,6 +91,7 @@ public class SalesController : Controller
     }
 
     // GET: SALES/Edit/5
+    // GET: SALES/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -98,11 +99,15 @@ public class SalesController : Controller
             return NotFound();
         }
 
-        var sale = await _context.Sales.FindAsync(id);
+        var sale = await _context.Sales
+            .Include(s => s.Product)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
         if (sale == null)
         {
             return NotFound();
         }
+
         return View(sale);
     }
 
